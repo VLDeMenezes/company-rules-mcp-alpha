@@ -1,5 +1,7 @@
 import cookie from '@fastify/cookie'
+import fastifyStatic from '@fastify/static'
 import Fastify, { type FastifyInstance } from 'fastify'
+import { fileURLToPath } from 'node:url'
 import { ZodError } from 'zod'
 import { createSessionGuards } from './auth/session.guard.js'
 import type { AppConfig } from './config.js'
@@ -97,6 +99,11 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   await app.register(tokensRoutes, { prefix: '/api/tokens', tokensRepo, guards })
 
   mountMcpServer(app, { rulesRepo, tokensRepo })
+
+  await app.register(fastifyStatic, {
+    root: fileURLToPath(new URL('../public', import.meta.url)),
+    prefix: '/',
+  })
 
   return app
 }

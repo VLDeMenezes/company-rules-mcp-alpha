@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content="Panel interno para gestionar las reglas de ingeniería de la compañía." />
+    <title>Reglas de la empresa · Panel interno</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C2410C'/%3E%3Cpath d='M9 11h14M9 16h14M9 21h9' stroke='%23FFF7ED' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido-principal">Saltar al contenido principal</a>
+
+    <header id="app-header" class="app-header" hidden>
+      <div class="header-inner">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+              <path d="M8 9h8M8 12.5h8M8 16h5" />
+            </svg>
+          </span>
+          <span class="brand-name">Reglas de la empresa</span>
+        </div>
+
+        <div class="header-user">
+          <span id="user-email" class="user-email"></span>
+          <span id="user-role" class="badge badge-role"></span>
+          <button id="logout-button" class="btn btn-secondary btn-small" type="button">Cerrar sesión</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="contenido-principal" tabindex="-1">
+      <section id="login-view" class="login-view" aria-labelledby="login-title">
+        <div class="login-card">
+          <div class="brand brand-large">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+                <path d="M8 9h8M8 12.5h8M8 16h5" />
+              </svg>
+            </span>
+            <span class="brand-name">Reglas de la empresa</span>
+          </div>
+
+          <h1 id="login-title">Acceso interno</h1>
+          <p class="login-subtitle">Gestiona los estándares de ingeniería de la compañía en un solo lugar.</p>
+
+          <form id="login-form" class="login-form" novalidate>
+            <div class="field">
+              <label for="login-email">Correo electrónico <span class="required-mark" aria-hidden="true">*</span></label>
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                inputmode="email"
+                autocomplete="username"
+                spellcheck="false"
+                required
+                autofocus
+                aria-describedby="login-error"
+              />
+            </div>
+
+            <div class="field">
+              <label for="login-password">Contraseña <span class="required-mark" aria-hidden="true">*</span></label>
+              <input
+                id="login-password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+                aria-describedby="login-error"
+              />
+            </div>
+
+            <p id="login-error" class="form-error" role="alert" hidden></p>
+
+            <button id="login-submit" class="btn btn-primary btn-block" type="submit">Entrar</button>
+          </form>
+
+          <p class="login-footnote">Acceso restringido al equipo interno.</p>
+        </div>
+      </section>
+
+      <section id="app-view" hidden>
+        <nav class="tabs" aria-label="Secciones principales">
+          <div class="tablist" role="tablist" aria-label="Secciones del panel">
+            <button
+              id="tab-reglas"
+              class="tab"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="panel-reglas"
+              tabindex="0"
+              data-tab="reglas"
+            >
+              Reglas
+            </button>
+            <button
+              id="tab-usuarios"
+              class="tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-usuarios"
+              tabindex="-1"
+              data-tab="usuarios"
+              hidden
+            >
+              Usuarios y tokens
+            </button>
+          </div>
+        </nav>
+
+        <section id="panel-reglas" class="panel" role="tabpanel" aria-labelledby="tab-reglas" tabindex="0">
+          <div class="panel-head">
+            <div>
+              <h1>Reglas</h1>
+              <p class="panel-subtitle">Estándares de seguridad, buenas prácticas y arquitectura.</p>
+            </div>
+            <button id="new-rule-button" class="btn btn-primary" type="button">Nueva regla</button>
+          </div>
+
+          <div class="toolbar" role="group" aria-label="Filtros de reglas">
+            <div class="field field-inline">
+              <label for="rule-search">Buscar</label>
+              <input
+                id="rule-search"
+                type="search"
+                placeholder="Identificador, título, etiqueta…"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+
+            <div class="field field-inline">
+              <label for="rule-category">Categoría</label>
+              <select id="rule-category">
+                <option value="">Todas las categorías</option>
+              </select>
+            </div>
+
+            <button id="clear-filters" class="btn btn-ghost" type="button">Limpiar filtros</button>
+
+            <p id="rules-count" class="result-count" role="status" aria-live="polite"></p>
+          </div>
+
+          <div id="rules-list" class="rules-list" aria-busy="false"></div>
+        </section>
+
+        <section id="panel-usuarios" class="panel" role="tabpanel" aria-labelledby="tab-usuarios" tabindex="0" hidden>
+          <div class="panel-head">
+            <div>
+              <h1>Usuarios y tokens</h1>
+              <p class="panel-subtitle">Administra el acceso del equipo y las claves de solo lectura para agentes.</p>
+            </div>
+          </div>
+
+          <section class="card" aria-labelledby="users-heading">
+            <div class="card-head">
+              <div>
+                <h2 id="users-heading">Usuarios</h2>
+                <p class="card-subtitle">Personas con acceso al panel interno.</p>
+              </div>
+            </div>
+
+            <form id="create-user-form" class="form-grid" novalidate>
+              <div class="field">
+                <label for="new-user-email">Correo electrónico <span class="required-mark" aria-hidden="true">*</span></label>
+                <input
+                  id="new-user-email"
+                  name="email"
+                  type="email"
+                  autocomplete="off"
+                  required
+                  aria-describedby="create-user-error"
+                />
+              </div>
+
+              <div class="field">
+                <label for="new-user-github">Usuario de GitHub</label>
+                <input id="new-user-github" name="githubUsername" type="text" autocomplete="off" spellcheck="false" />
+              </div>
+
+              <div class="field">
+                <label for="new-user-role">Rol <span class="required-mark" aria-hidden="true">*</span></label>
+                <select id="new-user-role" name="role" required>
+                  <option value="editor">Editor</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="new-user-password">Contraseña inicial <span class="required-mark" aria-hidden="true">*</span></label>
+                <input
+                  id="new-user-password"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  minlength="8"
+                  required
+                  aria-describedby="new-user-password-hint create-user-error"
+                />
+                <p id="new-user-password-hint" class="hint">Mínimo 8 caracteres.</p>
+              </div>
+
+              <div class="form-actions">
+                <button id="create-user-submit" class="btn btn-primary" type="submit">Crear usuario</button>
+              </div>
+
+              <p id="create-user-error" class="form-error" role="alert" hidden></p>
+            </form>
+
+            <div id="users-list" class="data-list" aria-busy="false"></div>
+          </section>
+
+          <section class="card" aria-labelledby="tokens-heading">
+            <div class="card-head">
+              <div>
+                <h2 id="tokens-heading">Tokens MCP</h2>
+                <p class="card-subtitle">Claves de solo lectura para que los agentes consulten las reglas.</p>
+              </div>
+            </div>
+
+            <div id="token-callout" class="token-callout" role="region" aria-labelledby="token-callout-title" hidden>
+              <div class="token-callout-head">
+                <h3 id="token-callout-title">Token creado</h3>
+                <button id="dismiss-token-callout" class="icon-button" type="button" aria-label="Ocultar token">
+                  <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+                    <path d="M5 5l10 10M15 5L5 15" />
+                  </svg>
+                </button>
+              </div>
+              <p class="token-warning">
+                Copia este token ahora. Por seguridad no se volverá a mostrar.
+              </p>
+              <p id="token-callout-name" class="token-name"></p>
+              <div class="token-value-row">
+                <code id="token-value" class="token-value"></code>
+                <button id="copy-token-button" class="btn btn-secondary btn-small" type="button">Copiar token</button>
+              </div>
+            </div>
+
+            <form id="create-token-form" class="form-grid form-grid-narrow" novalidate>
+              <div class="field">
+                <label for="new-token-name">Nombre del token <span class="required-mark" aria-hidden="true">*</span></label>
+                <input
+                  id="new-token-name"
+                  name="name"
+                  type="text"
+                  autocomplete="off"
+                  required
+                  aria-describedby="new-token-name-hint create-token-error"
+                />
+                <p id="new-token-name-hint" class="hint">Por ejemplo: proyecto-pagos-agent.</p>
+              </div>
+
+              <div class="form-actions">
+                <button id="create-token-submit" class="btn btn-primary" type="submit">Generar token</button>
+              </div>
+
+              <p id="create-token-error" class="form-error" role="alert" hidden></p>
+            </form>
+
+            <div id="tokens-list" class="data-list" aria-busy="false"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" hidden>
+      <p id="toast-message" class="toast-message"></p>
+      <button id="toast-dismiss" class="icon-button" type="button" aria-label="Cerrar notificación">
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+          <path d="M5 5l10 10M15 5L5 15" />
+        </svg>
+      </button>
+    </div>
+
+    <div id="live-polite" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div id="live-assertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+    <dialog id="rule-dialog" class="modal" aria-labelledby="rule-dialog-title">
+      <form id="rule-form" class="modal-form" novalidate>
+        <div class="modal-head">
+          <h2 id="rule-dialog-title">Nueva regla</h2>
+          <button class="icon-button" type="button" data-close-dialog="rule-dialog" aria-label="Cerrar editor de regla">
+            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+              <path d="M5 5l10 10M15 5L5 15" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p id="rule-form-error" class="form-error" role="alert" hidden></p>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="rule-id">Identificador <span class="required-mark" aria-hidden="true">*</span></label>
+              <input
+                id="rule-id"
+                name="id"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                required
+                maxlength="64"
+                pattern="[A-Za-z0-9][A-Za-z0-9._-]*"
+                aria-describedby="rule-id-hint rule-id-error"
+              />
+              <p id="rule-id-hint" class="hint">Letras, números, puntos, guiones o guiones bajos. Ejemplo: SEC-001.</p>
+              <p id="rule-id-error" class="field-error" hidden></p>
+            </div>
+
+            <div class="field">
+              <label for="rule-title">Título <span class="required-mark" aria-hidden="true">*</span></label>
+              <input
+                id="rule-title"
+                name="title"
+                type="text"
+                autocomplete="off"
+                required
+                aria-describedby="rule-title-error"
+              />
+              <p id="rule-title-error" class="field-error" hidden></p>
+            </div>
+
+            <div class="field">
+              <label for="rule-category-input">Categoría <span class="required-mark" aria-hidden="true">*</span></label>
+              <input
+                id="rule-category-input"
+                name="category"
+                type="text"
+                list="rule-category-options"
+                autocomplete="off"
+                required
+                aria-describedby="rule-category-hint rule-category-error"
+              />
+              <datalist id="rule-category-options"></datalist>
+              <p id="rule-category-hint" class="hint">Por ejemplo: security, architecture o testing.</p>
+              <p id="rule-category-error" class="field-error" hidden></p>
+            </div>
+
+            <div class="field">
+              <label for="rule-severity">Severidad</label>
+              <select id="rule-severity" name="severity">
+                <option value="mandatory">Obligatoria</option>
+                <option value="recommended">Recomendada</option>
+                <option value="optional">Opcional</option>
+              </select>
+            </div>
+
+            <div class="field field-full">
+              <label for="rule-tags">Etiquetas</label>
+              <input
+                id="rule-tags"
+                name="tags"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="api, validación, zod"
+                aria-describedby="rule-tags-hint"
+              />
+              <p id="rule-tags-hint" class="hint">Sepáralas con comas.</p>
+            </div>
+          </div>
+
+          <div class="editor-head">
+            <label class="editor-label" id="rule-content-label" for="rule-content">Contenido (Markdown)</label>
+            <div class="editor-modes" role="group" aria-label="Modo del editor">
+              <button id="editor-mode-write" class="btn btn-small btn-secondary" type="button" aria-pressed="true">Editor</button>
+              <button id="editor-mode-preview" class="btn btn-small btn-secondary" type="button" aria-pressed="false">Vista previa</button>
+            </div>
+          </div>
+
+          <div id="rule-content-field" class="field">
+            <textarea
+              id="rule-content"
+              name="content"
+              rows="12"
+              spellcheck="true"
+              aria-describedby="rule-content-hint"
+            ></textarea>
+            <p id="rule-content-hint" class="hint">Markdown básico: títulos, listas, código, enlaces, negrita y cursiva.</p>
+          </div>
+
+          <div id="rule-preview" class="preview markdown" aria-labelledby="rule-content-label" hidden></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" data-close-dialog="rule-dialog">Cancelar</button>
+          <button id="rule-save" class="btn btn-primary" type="submit">Guardar regla</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="confirm-dialog" class="modal modal-small" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+      <div class="modal-form">
+        <div class="modal-head">
+          <h2 id="confirm-title">Confirmar acción</h2>
+        </div>
+        <div class="modal-body">
+          <p id="confirm-message"></p>
+        </div>
+        <div class="modal-actions">
+          <button id="confirm-cancel" class="btn btn-secondary" type="button">Cancelar</button>
+          <button id="confirm-accept" class="btn btn-primary" type="button">Confirmar</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="password-dialog" class="modal modal-small" aria-labelledby="password-title" aria-describedby="password-context">
+      <form id="password-form" class="modal-form" novalidate>
+        <div class="modal-head">
+          <h2 id="password-title">Restablecer contraseña</h2>
+          <button class="icon-button" type="button" data-close-dialog="password-dialog" aria-label="Cerrar restablecimiento de contraseña">
+            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+              <path d="M5 5l10 10M15 5L5 15" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p id="password-context" class="muted"></p>
+          <p id="password-error" class="form-error" role="alert" hidden></p>
+
+          <div class="field">
+            <label for="password-new">Nueva contraseña <span class="required-mark" aria-hidden="true">*</span></label>
+            <input
+              id="password-new"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              required
+              aria-describedby="password-hint password-error"
+            />
+            <p id="password-hint" class="hint">Mínimo 8 caracteres.</p>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" data-close-dialog="password-dialog">Cancelar</button>
+          <button id="password-save" class="btn btn-primary" type="submit">Guardar contraseña</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
