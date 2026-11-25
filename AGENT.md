@@ -26,6 +26,8 @@ Servidor interno en Node.js + TypeScript + Fastify que centraliza reglas de la c
 
 - Desarrollo: `npm run dev`
 - Typecheck: `npx tsc --noEmit`
+- Tests: `npm test`
+- Build: `npm run build`
 
 ## Referencia de diseño
 
