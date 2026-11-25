@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { test } from 'node:test'
-import { hashPassword, verifyPassword } from '../src/auth/crypto.js'
+import {
+  generateMcpToken,
+  hashPassword,
+  hashToken,
+  verifyPassword,
+} from '../src/auth/crypto.js'
 
 test('hashPassword produces a salt:key hash that verifies the original password', () => {
   const hash = hashPassword('correct horse battery staple')
@@ -18,4 +24,19 @@ test('verifyPassword rejects malformed stored hashes', () => {
   assert.equal(verifyPassword('password', ''), false)
   assert.equal(verifyPassword('password', 'no-colon'), false)
   assert.equal(verifyPassword('password', 'abcdef:abcdef'), false)
+})
+
+test('generateMcpToken returns mcp_ plus 43 base64url characters', () => {
+  const token = generateMcpToken()
+
+  assert.match(token, /^mcp_[A-Za-z0-9_-]{43}$/)
+  assert.notEqual(generateMcpToken(), token)
+})
+
+test('hashToken returns a stable lowercase SHA-256 hex digest', () => {
+  const token = 'mcp_example-token'
+  const expected = createHash('sha256').update(token).digest('hex')
+
+  assert.equal(hashToken(token), expected)
+  assert.match(hashToken(token), /^[0-9a-f]{64}$/)
 })
