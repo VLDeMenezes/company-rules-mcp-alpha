@@ -3,6 +3,7 @@ import Fastify, { type FastifyInstance } from 'fastify'
 import { ZodError } from 'zod'
 import { createSessionGuards } from './auth/session.guard.js'
 import type { AppConfig } from './config.js'
+import { mountMcpServer } from './mcp/mcp.server.js'
 import { authRoutes } from './routes/auth.routes.js'
 import { rulesRoutes } from './routes/rules.routes.js'
 import { tokensRoutes } from './routes/tokens.routes.js'
@@ -94,6 +95,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   await app.register(rulesRoutes, { prefix: '/api/rules', rulesRepo, guards })
   await app.register(usersRoutes, { prefix: '/api/users', usersRepo, guards })
   await app.register(tokensRoutes, { prefix: '/api/tokens', tokensRepo, guards })
+
+  mountMcpServer(app, { rulesRepo, tokensRepo })
 
   return app
 }
