@@ -564,6 +564,21 @@ src/
 └── mcp/
     └── mcp.server.ts         # tools y resources de solo lectura
 public/                       # UI estática (HTML + CSS + Vanilla JS)
+├── index.html
+├── styles.css
+├── app.js                    # entry point: boot y wiring de sesión expirada
+└── js/
+    ├── api.js                # fetch wrapper + ApiError
+    ├── constants.js          # iconos y etiquetas
+    ├── dialogs.js            # <dialog>, foco y confirmaciones
+    ├── dom.js                # referencias centralizadas al DOM
+    ├── feedback.js           # toasts y regiones aria-live
+    ├── markdown.js           # render seguro de Markdown
+    ├── render.js             # helpers de markup compartido
+    ├── state.js              # estado del panel
+    ├── utils.js              # helpers puros de UI
+    ├── events/               # listeners por feature
+    └── views/                # render + acciones por feature
 test/                         # tests con node:test
 ```
 
