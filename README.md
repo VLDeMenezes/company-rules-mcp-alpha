@@ -19,6 +19,7 @@ La idea central: las personas mantienen las reglas desde el panel, y los agentes
 2. [Requisitos](#requisitos)
 3. [Puesta en marcha](#puesta-en-marcha)
 4. [Uso humano (UI y API REST)](#uso-humano-ui-y-api-rest)
+   - [Documentación interactiva (Swagger UI)](#documentación-interactiva-swagger-ui)
 5. [Uso desde agentes (MCP)](#uso-desde-agentes-mcp)
 6. [Configurar un MCP client](#configurar-un-mcp-client)
 7. [Cómo debería razonar un agente](#cómo-debería-razonar-un-agente)
@@ -39,6 +40,7 @@ La idea central: las personas mantienen las reglas desde el panel, y los agentes
 │ REST /api/*  │       │  /api/rules   CRUD reglas    │◀─────│ /mcp         │
 └──────────────┘       │  /api/users   CRUD usuarios  │Bearer│ (solo read)  │
                        │  /api/tokens  API keys       │      └──────────────┘
+                       │  /docs        Swagger UI     │
                        │                              │
                        │  /mcp  tools + resources     │
                        └──────────────┬───────────────┘
@@ -162,6 +164,25 @@ En `http://127.0.0.1:3000`:
 - **Login** con email y contraseña.
 - **Pestaña Reglas:** listar, filtrar, crear y editar reglas con editor Markdown y vista previa.
 - **Pestaña Usuarios y Tokens** (solo `admin`): alta/desactivación de usuarios y generación/revocación de tokens MCP.
+
+### Documentación interactiva (Swagger UI)
+
+Con el servidor levantado:
+
+- **Swagger UI:** `http://127.0.0.1:3000/docs/`
+- **OpenAPI JSON:** `http://127.0.0.1:3000/docs/json`
+
+El documento OpenAPI 3.0.3 vive en [`src/openapi.ts`](./src/openapi.ts) y cubre tanto la API REST como el endpoint MCP. Se mantiene de forma explícita porque las rutas validan con Zod y no declaran JSON Schemas de Fastify; si agregás o cambiás un endpoint, actualizá también ese archivo. El JSON de `/docs/json` también sirve para generar clients o tipados.
+
+> `/docs` no requiere autenticación y no expone secretos, solo contratos. Si el servidor es accesible fuera de la red interna, restringí `/docs` en el reverse proxy o firewall.
+
+Para probar endpoints protegidos desde Swagger UI:
+
+1. Ejecutá `POST /api/auth/login` con un usuario válido.
+2. El navegador guarda la cookie `HttpOnly` same-origin y la envía en las siguientes llamadas.
+3. Para `/mcp`, generá un token con `POST /api/tokens` y usá el botón **Authorize** con el token `mcp_...` (sin la palabra `Bearer`: Swagger UI la agrega sola).
+
+> La cookie de sesión es `HttpOnly`: no se puede pegar a mano en Swagger UI. El flujo correcto es loguearse primero desde la misma origin. Si tu navegador no reenvía la cookie, usá `curl` o el panel web.
 
 ### API REST
 
@@ -522,8 +543,9 @@ data/
 ```text
 src/
 ├── index.ts                  # bootstrap: env, seed, listen
-├── app.ts                    # composición de Fastify, rutas, MCP y estáticos
+├── app.ts                    # composición de Fastify, rutas, MCP, /docs y estáticos
 ├── config.ts                 # validación de variables de entorno (Zod)
+├── openapi.ts                # documento OpenAPI 3.0.3 servido en /docs
 ├── auth/
 │   ├── crypto.ts             # scrypt, SHA-256, generación de tokens
 │   ├── session.guard.ts      # cookie de sesión + roles

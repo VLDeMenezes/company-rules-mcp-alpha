@@ -1,11 +1,14 @@
 import cookie from '@fastify/cookie'
 import fastifyStatic from '@fastify/static'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
 import Fastify, { type FastifyInstance } from 'fastify'
 import { fileURLToPath } from 'node:url'
 import { ZodError } from 'zod'
 import { createSessionGuards } from './auth/session.guard.js'
 import type { AppConfig } from './config.js'
 import { mountMcpServer } from './mcp/mcp.server.js'
+import { openApiDocument } from './openapi.js'
 import { authRoutes } from './routes/auth.routes.js'
 import { rulesRoutes } from './routes/rules.routes.js'
 import { tokensRoutes } from './routes/tokens.routes.js'
@@ -91,6 +94,26 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   const guards = createSessionGuards({
     usersRepo,
     secureCookies: config.nodeEnv === 'production',
+  })
+
+  // The REST routes validate with Zod and do not declare Fastify JSON schemas,
+  // so the OpenAPI document is maintained explicitly in src/openapi.ts.
+  await app.register(swagger, {
+    mode: 'static',
+    specification: { document: openApiDocument },
+  })
+
+  await app.register(swaggerUi, {
+    routePrefix: '/docs',
+    staticCSP: true,
+    uiConfig: {
+      docExpansion: 'list',
+      deepLinking: true,
+      displayRequestDuration: true,
+      filter: true,
+      persistAuthorization: true,
+      tryItOutEnabled: true,
+    },
   })
 
   await app.register(authRoutes, { prefix: '/api/auth', usersRepo, guards })
